@@ -1,0 +1,15 @@
+[Unit]
+Description=Airflow scheduler daemon
+
+[Service]
+Environment=
+EnvironmentFile=/etc/sysconfig/webserver.env
+User=ubuntu
+Group=ubuntu
+Type=simple
+ExecStart=/home/ubuntu/.local/bin/airflow scheduler
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

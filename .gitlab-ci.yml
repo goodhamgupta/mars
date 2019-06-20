@@ -1,0 +1,53 @@
+.shared-runner: &shared-runner
+    tags:
+      - shared
+      - runner
+.production-runner: &production-runner
+  tags:
+    - production
+    - runner
+
+stages:
+  - test
+  - coverage
+  - integrity
+  - deploy
+
+test:
+  <<: *shared-runner
+  image: apache/airflow:latest-3.6
+  stage: test
+  script:
+    - sudo apt-get update
+    - sudo apt-get install sqlite3 -y
+    - sqlite3 --version
+    - sudo pip3 install -r requirements-staging.txt
+    - airflow initdb
+    - python3 -m pytest
+
+staging:
+  <<: *shared-runner
+  image: apache/airflow
+  stage: deploy
+  script:
+    - echo "$HOME"
+    - echo "Staging deployment done"
+  when: manual
+
+production:
+  <<: *production-runner
+  stage: deploy
+  image: $PRODUCTION_ECR_AP_SOUTH/devops/deploy-ec2:v-master
+  variables:
+      AIRFLOW__CORE__DAGS_FOLDER: $PROD_AIRFLOW__CORE__DAGS_FOLDER
+      AIRFLOW__CORE__LOGS_FOLDER: $PROD_AIRFLOW__CORE__LOGS_FOLDER
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: $PROD_AIRFLOW__CORE__SQL_ALCHEMY_CONN
+      AIRFLOW__WEBSERVER__SECRET_KEY: $PROD_AIRFLOW__WEBSERVER__SECRET_KEY
+  script:
+    - mkdir -p ~/.ssh
+    - echo "$PROD_SSH_PRIVATE_KEY" >> ~/.ssh/id_rsa && chmod 0600 ~/.ssh/id_rsa
+    - echo "Host *" > ~/.ssh/config && echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+    - cat scripts/setup.sh | ssh ubuntu@$PROD_MARS_IP sh
+  when: manual
+  only:
+    - master
