@@ -21,5 +21,12 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 Please make sure to update tests as appropriate.
 
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
+## Origin of the name
+
+A data pipeline directs the flow of data from source DBs to reporting DBs. The 
+word _tenor_ can be used to describe movement, or flow, in a particular direction. 
+Tenor is also a tone in music: the highest natural adult male singing voice. 
+Incidentally, Johannes Kepler, the German astronomer who's best known for 
+defining laws of planetary motion assigned musical notes to planets based on the 
+difference between the maximum and minimum angular speeds of a planet. Mars 
+happens to have the tenor note according to Keplar. Hence, Mars it is.
