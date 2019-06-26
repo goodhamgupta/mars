@@ -44,11 +44,13 @@ production:
       AIRFLOW__CORE__LOGS_FOLDER: $PROD_AIRFLOW__CORE__LOGS_FOLDER
       AIRFLOW__CORE__SQL_ALCHEMY_CONN: $PROD_AIRFLOW__CORE__SQL_ALCHEMY_CONN
       AIRFLOW__WEBSERVER__SECRET_KEY: $PROD_AIRFLOW__WEBSERVER__SECRET_KEY
+      KUBERNETES_POD_ANNOTATIONS_1: "iam.amazonaws.com/role=datum-etl-emr-role"
   script:
     - mkdir -p ~/.ssh
     - echo "$PROD_SSH_PRIVATE_KEY" >> ~/.ssh/id_rsa && chmod 0600 ~/.ssh/id_rsa
     - echo "Host *" > ~/.ssh/config && echo "  StrictHostKeyChecking no" >> ~/.ssh/config
     - bash scripts/variables.sh
+    - aws s3 sync . s3://datum-mars/mars/
     - scp webserver.env ubuntu@$PROD_MARS_IP:/etc/sysconfig/
     - cat scripts/setup.sh | ssh ubuntu@$PROD_MARS_IP sh
   when: manual
