@@ -26,7 +26,7 @@ dag = DAG(
         'create_emr_cluster',
         default_args=DEFAULT_ARGS,
         dagrun_timeout=timedelta(hours=2),
-        schedule_interval='0 3 * * *'
+        schedule_interval='0 8 * * *'
         )
 
 create_cluster = EmrCreateJobFlowOperator(
