@@ -38,7 +38,6 @@ create_cluster = EmrCreateJobFlowOperator(
 
 store_cluster_id = PythonOperator(
         task_id='store_cluster_id',
-        bash_command='echo "{{ task_instance.xcom_pull("create_emr_cluster_flow")}}"',
         dag=dag,
         python_callable=store,
         op_kwargs={"cluster_id": '{{ task_instance.xcom_pull("create_emr_cluster_flow")}}'}
