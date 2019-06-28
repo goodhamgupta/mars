@@ -22,7 +22,7 @@ STEPS = [
         "Name": "Hello World",
         "HadoopJarStep": {
             "Args": ["{}/hello_world.sh".format(Variable.get("bash_dir"))],
-            "Jar": "s3a://ap-south-1.elasticmapreduce/libs/script-runner/script-runner.jar"
+            "Jar": "s3://ap-south-1.elasticmapreduce/libs/script-runner/script-runner.jar"
         },
         "ActionOnFailure": "CONTINUE"
     }
