@@ -29,13 +29,13 @@ arguments = [
     connection.schema,
     connection.login,
     connection.password,
-    "campaign_templates",
-    f"{Variable.get('milkyway_sqoop_dest_dir')}/campaign_templates"
+    "tickets",
+    f"{Variable.get('milkyway_sqoop_dest_dir')}/tickets"
 ]
 
 STEPS = [
     {
-        "Name": "Sqoop milkyway campaign templates import",
+        "Name": "Sqoop milkyway tickets import",
         "HadoopJarStep": {
             "Args": arguments,
             "Jar": "s3://ap-south-1.elasticmapreduce/libs/script-runner/script-runner.jar"
@@ -45,7 +45,7 @@ STEPS = [
 ]
 
 dag = DAG(
-    'milkyway_sqoop_campaign_templates_import',
+    'milkyway_sqoop_tickets_import',
     default_args=DEFAULT_ARGS,
     dagrun_timeout=timedelta(hours=2),
     schedule_interval='0 13 * * *'
