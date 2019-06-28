@@ -1,0 +1,11 @@
+sqoop import \
+  --connect jdbc:mysql://$1:$2/$3 \
+  --username $4 \
+  --password $5 \
+  --table $6 \
+  --external-table-dir $7 \
+  --num-mappers 1 \
+  --as-textfile \
+  --hive-import \
+  --hive-overwrite \
+  --hive-delims-replacement ' '
