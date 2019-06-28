@@ -50,10 +50,10 @@ production:
     - echo "$PROD_SSH_PRIVATE_KEY" >> ~/.ssh/id_rsa && chmod 0600 ~/.ssh/id_rsa
     - echo "Host *" > ~/.ssh/config && echo "  StrictHostKeyChecking no" >> ~/.ssh/config
     - bash scripts/setup/variables.sh
-    - aws s3 sync . s3://datum-mars/mars/
     - scp webserver.env ubuntu@$PROD_MARS_IP:/etc/sysconfig/
     - cat scripts/setup/repo_and_services.sh | ssh ubuntu@$PROD_MARS_IP sh
     - rm webserver.env
+    - aws s3 sync . s3://datum-mars/mars/
   when: manual
   only:
     - master
