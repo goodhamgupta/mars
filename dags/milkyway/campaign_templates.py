@@ -25,7 +25,7 @@ connection = BaseHook.get_connection('prod_mysql_milkyway')
 arguments = [
     f"{Variable.get('sqoop_dir')}/mysql_import.sh",
     connection.host,
-    connection.port,
+    f"{connection.port}",
     connection.schema,
     connection.login,
     connection.password,
