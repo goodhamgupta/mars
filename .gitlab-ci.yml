@@ -53,6 +53,7 @@ production:
     - aws s3 sync . s3://datum-mars/mars/
     - scp webserver.env ubuntu@$PROD_MARS_IP:/etc/sysconfig/
     - cat scripts/setup/repo_and_services.sh | ssh ubuntu@$PROD_MARS_IP sh
+    - rm webserver.env
   when: manual
   only:
     - master
