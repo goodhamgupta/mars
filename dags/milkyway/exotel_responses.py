@@ -28,7 +28,6 @@ arguments = [
     f"{connection.port}",
     connection.schema,
     connection.login,
-    connection.password,
     "exotel_responses",
     f"{Variable.get('milkyway_sqoop_dest_dir')}/exotel_responses"
 ]
