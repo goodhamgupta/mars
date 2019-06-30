@@ -28,7 +28,6 @@ arguments = [
     f"{connection.port}",
     connection.schema,
     connection.login,
-    connection.password,
     "campaign_templates",
     f"{Variable.get('milkyway_sqoop_dest_dir')}/campaign_templates"
 ]
