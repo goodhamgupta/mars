@@ -11,7 +11,7 @@ from airflow.contrib.sensors.emr_step_sensor import EmrStepSensor
 DEFAULT_ARGS = {
     'owner': 'shubham',
     'depends_on_past': False,
-    'start_date': airflow.utils.dates.days_ago(2),
+    'start_date': '2019-07-01',
     'email': ['shubham.gupta@scripbox.com'],
     'email_on_failure': False,
     'email_on_retry': False
@@ -19,11 +19,16 @@ DEFAULT_ARGS = {
 
 cluster_id = Variable.get('cluster_id')
 
+arguments = [
+    f"{Variable.get('hive_dir')}/hive_cli.sh",
+    f"{Variable.get('hiveql_dir')}/moonraker/atomic_events.hql"
+]
+
 STEPS = [
     {
         "Name": "Hive atomic.events incremental update",
         "HadoopJarStep": {
-            "Args": ["hive -e 'msck repair table events'"],
+            "Args": arguments,
             "Jar": "s3://ap-south-1.elasticmapreduce/libs/script-runner/script-runner.jar"
         },
         "ActionOnFailure": "CONTINUE"
