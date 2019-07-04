@@ -1,4 +1,4 @@
-aws s3 cp s3a://datum-mars/auth/milkyway/read_replica_password.txt /home/hadoop/
+aws s3 cp s3://datum-mars/auth/milkyway/read_replica_password.txt /home/hadoop/
 
 chmod 400 /home/hadoop/read_replica_password.txt
 
