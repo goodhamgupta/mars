@@ -28,7 +28,7 @@ STEPS = [
     }
 ]
 
-cluster_id = Variable.get('cluster_id')
+cluster_id = Variable.get('cluster_id', default_var=None)
 
 dag = DAG(
     'bash_emr_step',
