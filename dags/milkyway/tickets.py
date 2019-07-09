@@ -18,7 +18,7 @@ DEFAULT_ARGS = {
     'email_on_retry': False
 }
 
-cluster_id = Variable.get('cluster_id')
+cluster_id = Variable.get('cluster_id', default_var=None)
 
 connection = BaseHook.get_connection('prod_mysql_milkyway')
 
