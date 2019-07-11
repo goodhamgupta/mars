@@ -13,14 +13,13 @@ class MarsEmrCreateJobFlowOperator(EmrCreateJobFlowOperator):
 
     def execute(self, *args, **kwargs):
         # Check if the cluster id is already exist.
-        self.log.info(
-            'Cluster already : %s',
-            Variable.get('cluster_id')
-        )
-        if Variable.get('cluster_id'):
+        cluster_id = Variable.get('cluster_id')
+        self.log.info('Cluster already : %s', cluster_id)
+
+        if cluster_id:
             self.log.info(
                 'Cluster already running cluster_id: %s',
-                Variable.get('cluster_id')
+                cluster_id
             )
             return 0
         cluster_id = super(MarsEmrCreateJobFlowOperator, self).execute(
@@ -28,6 +27,10 @@ class MarsEmrCreateJobFlowOperator(EmrCreateJobFlowOperator):
         )
 
         # Set the cluster id as variable.
+        self.log.info(
+            'Created new cluster cluster_id : %s',
+            cluster_id
+        )
         Variable.set('cluster_id', cluster_id)
         return cluster_id
 
