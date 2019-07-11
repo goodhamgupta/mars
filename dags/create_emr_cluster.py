@@ -19,7 +19,7 @@ class MarsEmrCreateJobFlowOperator(EmrCreateJobFlowOperator):
                 Variable.get('cluster_id')
             )
             return 0
-        return super(CustomEmrCreateJobFlowOperator, self).execute(
+        return super(MarsEmrCreateJobFlowOperator, self).execute(
             *args, **kwargs
         )
 
