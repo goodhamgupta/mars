@@ -34,7 +34,7 @@ class MarsEmrCreateJobFlowOperator(EmrCreateJobFlowOperator):
             'Created new cluster cluster_id : %s',
             cluster_key
         )
-        Variable.set('cluster_id', cluster_key)
+        Variable.set('cluster_key', cluster_key)
         return cluster_key
 
 
