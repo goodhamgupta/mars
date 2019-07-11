@@ -13,15 +13,23 @@ class MarsEmrCreateJobFlowOperator(EmrCreateJobFlowOperator):
 
     def execute(self, *args, **kwargs):
         # Check if the cluster id is already exist.
+        self.log.info(
+            'Cluster already : %s',
+            Variable.get('cluster_id')
+        )
         if Variable.get('cluster_id'):
             self.log.info(
                 'Cluster already running cluster_id: %s',
                 Variable.get('cluster_id')
             )
             return 0
-        return super(MarsEmrCreateJobFlowOperator, self).execute(
+        cluster_id = super(MarsEmrCreateJobFlowOperator, self).execute(
             *args, **kwargs
         )
+
+        # Set the cluster id as variable.
+        Variable.set('cluster_id', cluster_id)
+        return cluster_id
 
 
 DEFAULT_ARGS = {
@@ -33,10 +41,6 @@ DEFAULT_ARGS = {
         'email_on_retry': False
         }
 
-
-def store(**kwargs):
-    cluster_id = kwargs["cluster_id"]
-    Variable.set("cluster_id", cluster_id)
 
 dag = DAG(
         'create_emr_cluster',
@@ -51,12 +55,3 @@ create_cluster = MarsEmrCreateJobFlowOperator(
         emr_conn_id='emr_default',
         dag=dag
         )
-
-store_cluster_id = PythonOperator(
-        task_id='store_cluster_id',
-        dag=dag,
-        python_callable=store,
-        op_kwargs={"cluster_id": '{{ task_instance.xcom_pull("create_emr_cluster_flow")}}'}
-        )
-
-create_cluster.set_downstream(store_cluster_id)
