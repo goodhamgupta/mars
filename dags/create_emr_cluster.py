@@ -22,9 +22,9 @@ class MarsEmrCreateJobFlowOperator(EmrCreateJobFlowOperator):
                 cluster_id
             )
             return 0
-        cluster_id = super(MarsEmrCreateJobFlowOperator, self).execute(
-            *args, **kwargs
-        )
+        # cluster_id = super(MarsEmrCreateJobFlowOperator, self).execute(
+        #     *args, **kwargs
+        # )
 
         # Set the cluster id as variable.
         self.log.info(
