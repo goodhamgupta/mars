@@ -17,6 +17,11 @@ DEFAULT_ARGS = {
     'email_on_retry': False
 }
 
+# Take clister id backup.
+cluster_id = Variable.get("cluster_id")
+# Remove the cluster id from variables.
+Variable.set("cluster_id", "")
+
 dag = DAG(
     'terminate_emr_cluster',
     default_args=DEFAULT_ARGS,
@@ -26,7 +31,8 @@ dag = DAG(
 
 EmrTerminateJobFlowOperator(
     task_id='terminate_emr_cluster_flow',
-    job_flow_id=Variable.get("cluster_id"),
+    job_flow_id=cluster_id,
     aws_conn_id='aws_default',
     dag=dag
 )
+
