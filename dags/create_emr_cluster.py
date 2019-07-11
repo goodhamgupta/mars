@@ -8,6 +8,22 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.contrib.operators.emr_create_job_flow_operator \
         import EmrCreateJobFlowOperator
 
+
+class MarsEmrCreateJobFlowOperator(EmrCreateJobFlowOperator):
+
+    def execute(self, *args, **kwargs):
+        # Check if the cluster id is already exist.
+        if not Variable.get('cluster_id'):
+            self.log.info(
+                'Cluster already running cluster_id: %s',
+                Variable.get('cluster_id')
+            )
+            return 0
+        return super(CustomEmrCreateJobFlowOperator, self).execute(
+            *args, **kwargs
+        )
+
+
 DEFAULT_ARGS = {
         'owner': 'shubham',
         'depends_on_past': False,
@@ -29,7 +45,7 @@ dag = DAG(
         schedule_interval='0 8 * * *'
         )
 
-create_cluster = EmrCreateJobFlowOperator(
+create_cluster = MarsEmrCreateJobFlowOperator(
         task_id='create_emr_cluster_flow',
         aws_conn_id='aws_default',
         emr_conn_id='emr_default',
