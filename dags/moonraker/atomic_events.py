@@ -17,7 +17,7 @@ DEFAULT_ARGS = {
     'email_on_retry': False
 }
 
-cluster_id = Variable.get('cluster_id')
+cluster_id = Variable.get('cluster_key')
 
 arguments = [
     f"{Variable.get('hive_dir')}/hive_cli.sh",
