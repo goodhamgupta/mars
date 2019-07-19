@@ -15,8 +15,8 @@ stages:
 
 test:
   <<: *shared-runner
-  image: apache/airflow:latest-3.6
-  stage: deploy
+  image: apache/airflow:master
+  stage: test
   script:
     - sudo apt-get update
     - sudo apt-get install sqlite3 -y
