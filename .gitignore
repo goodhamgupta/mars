@@ -5,3 +5,4 @@ __pycache__/
 *.log
 logs/scheduler/*
 unittests.cfg
+.DS_Store

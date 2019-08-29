@@ -17,7 +17,7 @@ DEFAULT_ARGS = {
     'email_on_retry': False
 }
 
-cluster_id = Variable.get('cluster_key')
+cluster_key = Variable.get('cluster_key')
 
 arguments = [
     f"{Variable.get('hive_dir')}/hive_cli.sh",
@@ -45,7 +45,7 @@ dag = DAG(
 
 step_adder = EmrAddStepsOperator(
     task_id='add_steps',
-    job_flow_id=cluster_id,
+    job_flow_id=cluster_key,
     aws_conn_id='aws_default',
     steps=STEPS,
     dag=dag
@@ -53,7 +53,7 @@ step_adder = EmrAddStepsOperator(
 
 step_checker = EmrStepSensor(
     task_id='watch_step',
-    job_flow_id=cluster_id,
+    job_flow_id=cluster_key,
     step_id="{{ task_instance.xcom_pull('add_steps', key='return_value')[0] }}",
     aws_conn_id='aws_default',
     dag=dag
