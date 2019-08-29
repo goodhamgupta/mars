@@ -1,0 +1,125 @@
+,,1,airflow_db,mysql,localhost,mars_airflow,root,,False,False
+,"{
+""region_name"": ""ap-south-1"",
+""aws_access_key_id"":""YOUR_ACCESS_KEY"", 
+""aws_secret_access_key"": ""YOUR_SECRET_KEY""
+}",22,aws_default,aws,,,,,False,False
+,"                {
+        ""Name"": ""Mars Airflow Development"",
+        ""LogUri"": ""s3n://aws-logs-711318293644-ap-south-1/elasticmapreduce/"",
+        ""ReleaseLabel"": ""emr-5.23.0"",
+        ""Instances"": {
+            ""Ec2KeyName"": ""shubham.gupta@scripbox.com"",
+            ""AdditionalSlaveSecurityGroups"": [
+                ""sg-0838bb1964136426c""
+            ],
+            ""ServiceAccessSecurityGroup"": ""sg-08d97d6ad3c875b77"",
+            ""Ec2SubnetId"": ""subnet-07491b3ff29fcd464"",
+            ""EmrManagedSlaveSecurityGroup"": ""sg-03dc6849a5688a8b2"",
+            ""EmrManagedMasterSecurityGroup"": ""sg-0b709b3c6b6c96d1c"",
+            ""AdditionalMasterSecurityGroups"": [
+                ""sg-0838bb1964136426c""
+            ],
+            ""InstanceGroups"": [
+                {
+                    ""Name"": ""Master nodes"",
+                    ""Market"": ""ON_DEMAND"",
+                    ""InstanceRole"": ""MASTER"",
+                    ""InstanceType"": ""m4.large"",
+                    ""InstanceCount"": 1
+                },
+                {
+                    ""Name"": ""Slave nodes"",
+                    ""Market"": ""ON_DEMAND"",
+                    ""InstanceRole"": ""CORE"",
+                    ""InstanceType"": ""m4.large"",
+                    ""InstanceCount"": 2
+                }
+            ],
+            ""TerminationProtected"": false,
+            ""KeepJobFlowAliveWhenNoSteps"": true
+        },
+        ""Applications"": [
+            {
+                ""Name"": ""HCatalog""
+            },
+            {
+                ""Name"": ""Spark""
+            },
+            {
+                ""Name"": ""Hadoop""
+            },
+            {
+                ""Name"": ""Hive""
+            },
+            {
+                ""Name"": ""Hue""
+            },
+            {
+                ""Name"": ""Sqoop""
+            }
+        ],
+        ""VisibleToAllUsers"": true,
+        ""JobFlowRole"": ""EMR_EC2_DefaultRole"",
+        ""ServiceRole"": ""EMR_DefaultRole"",
+        ""AutoScalingRole"": ""EMR_AutoScaling_DefaultRole"",
+        ""SecurityConfiguration"": ""datum-etl-sg-s3"",
+        ""BootstrapActions"": [
+            {
+                ""Name"": ""Custom action"",
+                ""ScriptBootstrapAction"": {
+                    ""Path"": ""s3://datum-mars/scripts/setup/jdbc_setup_script.sh""
+                }
+            }
+        ],
+        ""EbsRootVolumeSize"": 20,
+        ""Configurations"": [
+            {
+                ""Classification"": ""hue-ini"",
+                ""Properties"": {},
+                ""Configurations"": [
+                    {
+                        ""Classification"": ""desktop"",
+                        ""Properties"": {},
+                        ""Configurations"": [
+                            {
+                                ""Classification"": ""database"",
+                                ""Properties"": {
+                                    ""password"": ""hue_password"",
+                                    ""engine"": ""mysql"",
+                                    ""port"": ""hue_port"",
+                                    ""host"": ""hue_host""
+                                    ""name"": ""hue_db"",
+                                    ""user"": ""hue_user""
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                ""Classification"": ""hive-site"",
+                ""Properties"": {
+                    ""javax.jdo.option.ConnectionUserName"": ""hive_user"",
+                    ""javax.jdo.option.ConnectionDriverName"": ""org.mariadb.jdbc.Driver"",
+                    ""javax.jdo.option.ConnectionPassword"": ""hive_password"",
+                    ""javax.jdo.option.ConnectionURL"": ""jdbc:mysql:\/\/hive_host:hive_port\/hive_db?createDatabaseIfNotExist=true""
+                }
+            },
+            {
+                ""Classification"": ""core-site"",
+                ""Properties"": {
+                  ""security.groups.cache.secs"": ""250"",
+                  ""fs.s3n.awsAccessKeyId"": ""YOUR_ACCESS_KEY"",
+                  ""fs.s3n.awsSecretAccessKey"": ""YOUR_SECRET_KEY""
+                }
+            }
+        ],
+        ""Tags"": [
+            {
+                ""Key"": ""environment"",
+                ""Value"": ""development""
+            }
+        ]
+    }",28,emr_default,emr,,,,,False,False
+root,,38,prod_mysql_milkyway,mysql,locahost,database,root,3306,False,False
