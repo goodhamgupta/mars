@@ -21,7 +21,7 @@ class MarsEmrCreateJobFlowOperator(EmrCreateJobFlowOperator):
 
         if cluster_key:
             self.log.info(
-                'Cluster already running cluster_id: %s',
+                'Cluster already running cluster_key: %s',
                 cluster_key
             )
             return 0
@@ -31,7 +31,7 @@ class MarsEmrCreateJobFlowOperator(EmrCreateJobFlowOperator):
 
         # Set the cluster id as variable.
         self.log.info(
-            'Created new cluster cluster_id : %s',
+            'Created new cluster cluster_key : %s',
             cluster_key
         )
         Variable.set('cluster_key', cluster_key)

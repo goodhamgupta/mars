@@ -1,0 +1,19 @@
+Metadata-Version: 1.1
+Name: hiveql
+Version: 0.0.1
+Summary: Lol
+Home-page: UNKNOWN
+Author: goodhamgupta
+Author-email: shubham.gupta@scripbox.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7

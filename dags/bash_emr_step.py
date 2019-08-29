@@ -28,7 +28,7 @@ STEPS = [
     }
 ]
 
-cluster_id = Variable.get('cluster_id', default_var=None)
+cluster_key = Variable.get('cluster_key', default_var=None)
 
 dag = DAG(
     'bash_emr_step',
@@ -40,7 +40,7 @@ dag = DAG(
 
 step_adder = EmrAddStepsOperator(
     task_id='add_steps',
-    job_flow_id=cluster_id,
+    job_flow_id=cluster_key,
     aws_conn_id='aws_default',
     steps=STEPS,
     dag=dag
@@ -48,7 +48,7 @@ step_adder = EmrAddStepsOperator(
 
 step_checker = EmrStepSensor(
     task_id='watch_step',
-    job_flow_id=cluster_id,
+    job_flow_id=cluster_key,
     step_id="{{ task_instance.xcom_pull('add_steps', key='return_value')[0] }}",
     aws_conn_id='aws_default',
     dag=dag
