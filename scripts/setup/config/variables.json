@@ -1,0 +1,10 @@
+{
+    "bash_dir": "s3a://datum-mars/mars/scripts/bash",
+    "cluster_key": "j-3CBU0WEGNUPVW",
+    "hive_dir": "s3a://datum-mars/mars/scripts/hive",
+    "hiveql_dir": "s3a://datum-mars/mars/hiveql",
+    "milkyway_hive_interim_dir": "s3a://datum-emr-interim/milky-way",
+    "milkyway_sqoop_dest_dir": "s3a://datum-emr-raw/milky-way",
+    "myscripbox_hive_interim_dir ": "s3a://datum-emr-interim/myscripbox",
+    "sqoop_dir": "s3a://datum-mars/mars/scripts/bash/sqoop"
+}
