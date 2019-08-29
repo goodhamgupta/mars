@@ -6,7 +6,7 @@ git pull origin master
 echo "Installing custom packages"
 cd /home/ubuntu/mars/hiveql
 sudo pip3 install .
-cd /home/ubuntu/mars/common
+cd /home/ubuntu/mars/dags/common
 sudo pip3 install .
 echo "Restarting services"
 sudo systemctl daemon-reload
