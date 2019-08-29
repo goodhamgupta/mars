@@ -8,6 +8,9 @@ cd /home/ubuntu/mars/hiveql
 sudo pip3 install .
 cd /home/ubuntu/mars/dags/common
 sudo pip3 install .
+echo "Importing variable"
+cd /home/ubuntu/mars
+airflow variables --import scripts/setup/config/variables.json
 echo "Restarting services"
 sudo systemctl daemon-reload
 sudo systemctl restart airflow-webserver
