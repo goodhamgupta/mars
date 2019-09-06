@@ -11,7 +11,7 @@ from airflow.contrib.sensors.emr_step_sensor import EmrStepSensor
 DEFAULT_ARGS = {
     'owner': 'shubham',
     'depends_on_past': False,
-    'start_date': '2019-07-01',
+    'start_date': '2019-09-05',
     'email': ['shubham.gupta@scripbox.com'],
     'email_on_failure': False,
     'email_on_retry': False

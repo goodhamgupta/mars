@@ -136,8 +136,9 @@ class HiveEmrWorkflowV2(BaseEmrWorkflow):
 
     @classmethod
     def create(cls, params):
-        """ Function to create the sub dag to create derived tables in hive. Each sub dag has the following steps: - For a selected time range, we first fetch the data using a hive query
-        - Store the result in a temporary table(This will be an EMR Step)
+        """
+        Function to create the sub dag to create derived tables in hive. Each sub dag has the following steps: - For a selected time range, we first fetch the data using a hive query
+        - Store the result in a temporary table(EMR Step)
         - Write this temporary table to S3(EMR Step)
         - Monitor thestatus of the writes.(EMR Sensor)
         - Repeat this for all time slices.
