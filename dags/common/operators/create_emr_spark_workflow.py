@@ -3,7 +3,7 @@ from airflow.models import DAG, Variable
 from airflow.operators.python_operator import PythonOperator
 from common.operators.create_job_flow import MarsEmrCreateJobFlowOperator
 from datetime import datetime, timedelta
-from sb_emr.emr_client import EmrClient
+from sbemr import EmrClient
 
 
 class CreateEmrSparkWorkflow:
@@ -12,19 +12,29 @@ class CreateEmrSparkWorkflow:
     initialize the spark session.
     """
 
-    @classmethod
-    def save_dns(cls, emr_client):
+    def _save_dns(*args, **kwargs):
         """
         Save cluster dns as a variable
         """
-        cluster_key = Variablee.get("cluster_key")
-        cluster_dns = emr_client.get_public_dns(cluster_key)
+        emr_client = args[1]
+        ti = kwargs["ti"]
+        cluster_key = ti.xcom_pull(task_ids="create_cluster")
+        cluster_dns = emr_client.get_cluster_dns(cluster_key)
         Variable.set("cluster_dns", cluster_dns)
-        logging.log("Variable cluster_dns set")
+        logging.info("Variable cluster_dns set")
         return True
 
+    def _wait_for_completion(*args, **kwargs):
+        """
+        Wait for cluster to be ready for jobs.
+        """
+        emr_client = args[1]
+        ti = kwargs["ti"]
+        cluster_id = ti.xcom_pull(task_ids="create_cluster")
+        emr_client.wait_for_cluster_creation(cluster_id)
+
     @classmethod
-    def create(self, params):
+    def create(cls, params):
         """
         Function to create the EMR cluster
 
@@ -34,24 +44,34 @@ class CreateEmrSparkWorkflow:
         :return: DAG object containing the steps to create cluster
         :rtype DAG
         """
+        obj = cls()
         emr_client = EmrClient()
+
         dag = DAG(
             "create_emr_cluster",
             default_args=params.get("default_args"),
-            schedule_interval=params.get("schedule_interval", "0 8 * * *")
+            schedule_interval=params.get("schedule_interval", "0 8 * * *"),
         )
 
         create_cluster = MarsEmrCreateJobFlowOperator(
-            task_id="create_emr_cluster_flow",
+            task_id="create_cluster",
             aws_conn_id="aws_default",
             emr_conn_id="emr_default",
             dag=dag,
         )
-        fetch_cluster_dns = PythonOperator(
-            task_id="fetch_cluster_dns",
-            python_callable=cls.save_dns,
-            op_kwargs={"emr_client": emr_client},
+        wait_for_creation = PythonOperator(
+            task_id="wait_for_creation",
+            python_callable=obj._wait_for_completion,
+            provide_context=True,
+            op_args=[emr_client],
             dag=dag,
         )
-        create_cluster >> fetch_cluster_dns
+        fetch_dns = PythonOperator(
+            task_id="fetch_dns",
+            python_callable=obj._save_dns,
+            provide_context=True,
+            op_args=[emr_client],
+            dag=dag,
+        )
+        create_cluster >> wait_for_creation >> fetch_dns
         return dag

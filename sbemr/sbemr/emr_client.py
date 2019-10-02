@@ -1,34 +1,37 @@
-from airflow.models import Variable
 import boto3, json, pprint, requests, textwrap, time, logging
+from airflow.models import Variable
 from datetime import datetime
 
 
-class EMRClient:
+class EmrClient:
     """
     Helper class to access EMR
     """
 
     def __init__(self):
-        client = boto3.client(
+        self.client = boto3.client(
             "emr",
-            region_name="Asia/Mumbai",
-            aws_secret_key_id="test",
-            aws_secret_access_key="test",
+            region_name="ap-south-1",
+            aws_access_key_id=Variable.get("aws_access_key_id"),
+            aws_secret_access_key=Variable.get("aws_secret_access_key"),
         )
-        cluster_key = Variable.get('cluster_key')
 
-    def get_cluster_dns(self):
+    def get_cluster_dns(self, cluster_key):
         """
         Function to get the Master server DNS given the cluster_key
-
-        :param cluster_key: EMR cluster ID
-        :type str
 
         :return: Master server DNS
         :rtype str
         """
-        response = self.client.describe_cluster(ClusterId=self.cluster_key)
+        response = self.client.describe_cluster(ClusterId=cluster_key)
+        logging.info(response)
         return response["Cluster"]["MasterPublicDnsName"]
+
+    def wait_for_cluster_creation(self, cluster_key):
+        """
+        Wait till EMR cluster is in "Ready" state. This is required because the public DNS for the cluster will be created only once the cluster is ready.
+        """
+        self.client.get_waiter("cluster_running").wait(ClusterId=cluster_key)
 
     def create_spark_session(self, kind="sql"):
         """
