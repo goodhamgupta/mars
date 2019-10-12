@@ -16,7 +16,7 @@ class HiveEmrWorkflow:
 
 
     def __init__(self, params):
-        self.cluster_key = Variable.get('cluster_key')
+        self.cluster_key = Variable.get('cluster_key', 'dummy_cluster')
         self.params = params
         self.source_app = params.get('source_app', 'milkyway')
         self.parent = params.get('parent', 'test')

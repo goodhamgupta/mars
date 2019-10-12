@@ -13,7 +13,7 @@ class SqoopEmrWorkflow:
     Class specifying the EMR workflow using the steps API for the Sqoop import. Currently, we support only the full snapshot mode.
     """
     def __init__(self, params):
-        self.cluster_key = Variable.get('cluster_key')
+        self.cluster_key = Variable.get('cluster_key', 'dummy_cluster')
         self.source_app = params.get('source_app', 'milkyway')
         self.connection_name = params.get('connection_name', 'prod_mysql_milkyway')
         self.script = params.get('script', 'mysql_import.sh')

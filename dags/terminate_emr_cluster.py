@@ -23,7 +23,8 @@ class MarsEmrTerminateJobFlowOperator(EmrTerminateJobFlowOperator):
 
         # Delete the cluster id once it is terminated.
         Variable.delete('cluster_key')
-
+        # Delete the cluster dns variable
+        Variable.delete('cluster_dns')
 
 DEFAULT_ARGS = {
     'owner': 'shubham',
