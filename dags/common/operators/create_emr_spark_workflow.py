@@ -1,7 +1,8 @@
 import logging
-from airflow.models import DAG, Variable
+from airflow import settings
+from airflow.models import DAG, Variable, Connection
 from airflow.operators.python_operator import PythonOperator
-from common.operators.create_job_flow import MarsEmrCreateJobFlowOperator
+from common.operators.create_job_flow_operator import MarsEmrCreateJobFlowOperator
 from datetime import datetime, timedelta
 from sbemr import EmrClient
 
@@ -32,6 +33,21 @@ class CreateEmrSparkWorkflow:
         ti = kwargs["ti"]
         cluster_id = ti.xcom_pull(task_ids="create_cluster")
         emr_client.wait_for_cluster_creation(cluster_id)
+
+    def _create_hive_connection(*args, **kwargs):
+        """
+        Function to create the hive connection. This connection will allow us to execute hive queries on the EMR cluster directly without using the steps API.
+        """
+        cluster_dns = Variable.get("cluster_dns")
+        hive_conn = Connection(
+            conn_id=f"hive_connection",
+            login="hadoop",
+            host=cluster_dns if cluster_dns else None,
+        )
+
+        session = settings.Session()
+        session.add(hive_conn)
+        session.commit()
 
     @classmethod
     def create(cls, params):
@@ -73,5 +89,13 @@ class CreateEmrSparkWorkflow:
             op_args=[emr_client],
             dag=dag,
         )
+
+        create_hive_connection = PythonOperator(
+            task_id="create_hive_connection",
+            python_callable=obj._create_hive_connection,
+            provide_context=True,
+            dag=dag,
+        )
         create_cluster >> wait_for_creation >> fetch_dns
+        fetch_dns >> create_hive_connection
         return dag

@@ -4,7 +4,7 @@ from airflow.hooks.postgres_hook import PostgresHook
 from common.operators.base_emr_workflow import BaseEmrWorkflow
 
 
-class RegistryEmrWorkflow(BaseEmrWorkflow):
+class RegistryEmrWorkflowV2(BaseEmrWorkflow):
     """
     Class containing methods to access and alter information in the registry tables.
     """
@@ -24,9 +24,9 @@ class RegistryEmrWorkflow(BaseEmrWorkflow):
         else:
             return PostgresHook(postgres_conn_id=self.conn_id)
 
-    def _fetch_tstamps(self, params):
+    def _fetch_tstamps_full(self, params):
         """
-        Function to fetch the timestamps required for the incremental snapshot.
+        Function to fetch the timestamps required for the full snapshot.
 
         :param params: Dict containing information for the full snapshot.
         :type params: dict
@@ -50,11 +50,41 @@ class RegistryEmrWorkflow(BaseEmrWorkflow):
             else:
                 last_run = last_run_records[0]
 
-            if params.get("snapshot_type") == "full":
-                current_run = self._datetime_format(datetime.now())
+        current_run = self._datetime_format(datetime.now())
+
+        return (last_run, current_run)
+
+    def _fetch_tstamps_full(self, params):
+        """
+        Function to fetch the timestamps required for the full snapshot.
+
+        :param params: Dict containing information for the full snapshot.
+        :type params: dict
+
+        :return (last_run, current_run): Timestamps signifying snapshot_start and oeprator to fetch the snapshot_end from the source table using hiveql.
+        :rtype: tuple(str, Operator)
+        """
+        conn = self._create_conn()
+        # Check for any pending executions.
+        pending_one = conn.get_first(self._sql_lookup("REGISTRY_PENDINGS", params))
+
+        if pending_one[0]:
+            last_run = pending_one[0]
+        else:
+            last_run_records = conn.get_first(
+                self._sql_lookup("REGISTRY_SELECT_MAX", params)
+            )
+
+            if not last_run_records or not last_run_records[0]:
+                last_run = self._datetime_format(datetime.now() - timedelta(days=1))
             else:
-                pass
-            return (last_run, current_run)
+                last_run = last_run_records[0]
+
+        timestamp_op = self._generate_emr_steps_jdbc(
+            "REGISTRY_SOURCE_LATEST_RUN", dag, params
+        )
+
+        return (last_run, timestamp_op)
 
     def _create_registry(self, params):
         """
@@ -77,7 +107,7 @@ class RegistryEmrWorkflow(BaseEmrWorkflow):
 
         return True
 
-    def _insert_registry(self, params):
+    def _insert_registry(self, params, **kwargs):
         """
         Function to insert the current timestamps into the registry table.
 
@@ -85,6 +115,7 @@ class RegistryEmrWorkflow(BaseEmrWorkflow):
         :type params: dict
         """
         conn = self._create_conn()
+        stage_params = params.copy()
         conn.run(self._sql_lookup("REGISTRY_INSERT", params))
 
     def _insert_incremental(self, params):
@@ -101,18 +132,20 @@ class RegistryEmrWorkflow(BaseEmrWorkflow):
         :param params: Dict containing information for the snapshot
         :type params: dict
         """
-        #(adder_op, watcher_op) = self._generate_emr_steps(
-        #    "REGISTRY_SOURCE_LATEST_RUN", dag, params
-        #)
-        #timestamp = "mate"  # Fetch timestamp from task_instance
-        # Update snapshot params using above timestamp
-        insert_op = PythonOperator(
-            task_id=f"registry_insert_0", python_callable=self._insert_registry,
-            op_kwargs={"params": params},
-        )
-        #adder_op >> checker_op >> insert_op
-        #return adder_op
-        return (insert_op, params)
+        task_instance = params.get('ti')
+        if task_instance:
+            snapshot_end = task_intance.xcom_pull(key='return_value', task_ids='registry_snapshot_end_0')
+            stage_params = params.copy()
+            stage_params.update({'snapshot_end': snapshot_end})
+            insert_op = PythonOperator(
+                task_id=f"registry_insert_0",
+                python_callable=self._insert_registry,
+                kwargs={"params": stage_params},
+            )
+            return (insert_op, stage_params)
+        else:
+            raise ValueError("Task instance not found. Force failing DAG.")
+
 
     def _update_registry(self, params):
         """
@@ -137,7 +170,7 @@ class RegistryEmrWorkflow(BaseEmrWorkflow):
             task_id=f"registry_create_{obj.stage_index}",
             pass_context=True,
             python_callable=obj._create_registry,
-            op_kwargs={"params": params},
+            kwargs={"params": params},
         )
 
         return registry_create
@@ -155,15 +188,20 @@ class RegistryEmrWorkflow(BaseEmrWorkflow):
             task_id=f"registry_insert_{obj.stage_index}",
             pass_context=True,
             python_callable=obj._insert_registry,
-            op_kwargs={"params": params},
+            kwargs={"params": params},
         )
         return registry_insert
 
     @classmethod
     def registry_insert_incremental(cls, params):
         obj = cls(params)
-        (registry_insert, updated_params) = obj._insert_incremental(params)
-        return (registry_insert, updated_params)
+        registry_insert_incremental = PythonOperator(
+            task_id=f"registry_snapshot_end_{obj.stage_index}",
+            pass_context=True,
+            python_callable=obj._insert_registry_incremetal,
+            kwargs={"params": params},
+        )
+        return registry_insert_incremental
 
     @classmethod
     def registry_update(cls, params):
@@ -178,7 +216,7 @@ class RegistryEmrWorkflow(BaseEmrWorkflow):
             task_id=f"registry_update_{obj.stage_index}",
             pass_context=True,
             python_callable=obj._update_registry,
-            op_kwargs={"params": params},
+            kwargs={"params": params},
         )
 
         return registry_update
@@ -192,5 +230,9 @@ class RegistryEmrWorkflow(BaseEmrWorkflow):
         :type params: dict
         """
         obj = cls(params)
-        last_run, current_run = obj._fetch_tstamps(params)
-        return last_run, current_run
+        if params.get("snapshot_type") == "full":
+            last_run, current_run = obj._fetch_tstamps_full(params)
+            return last_run, current_run
+        else:
+            last_run, latest_timestamp_op = obj._fetch_tstamps_incremetal(params)
+            return last_run, latest_timestamp_op

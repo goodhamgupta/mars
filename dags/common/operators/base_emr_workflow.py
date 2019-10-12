@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta
 from airflow.models import Variable
-from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators.python_operator import PythonOperator
-from airflow.hooks import MySqlHook
 from airflow.contrib.operators.emr_add_steps_operator import EmrAddStepsOperator
 from airflow.contrib.sensors.emr_step_sensor import EmrStepSensor
+from airflow.hooks import MySqlHook
+from airflow.operators import HiveEmrOperator
+from airflow.operators.dummy_operator import DummyOperator
+from airflow.operators.python_operator import PythonOperator
 from hiveql import common as common_hiveql
 from hiveql.myscripbox.interim import offering_source
 
@@ -18,7 +19,7 @@ class BaseEmrWorkflow():
 
     @staticmethod
     def _fetch_cluster_key():
-        return Variable.get('cluster_key')
+        return Variable.get('cluster_key', 'dummy_cluster')
 
     @staticmethod
     def _fetch_hive_interim_dir(params):
@@ -162,4 +163,35 @@ class BaseEmrWorkflow():
         )
 
         return (adder, watcher)
+
+    def _generate_emr_steps_jdbc(self, dag, query, params):
+        """
+        Function to generate the steps needed for the EMR flow using the jdbc driver
+
+        :param dag: Airflow DAG object to which the steps will be added downstream.
+        :type dag: Airflow DAG
+
+        :param query: Type of SQL query
+        :type query: string
+
+        :param params: Dict containing information needed to add steps to the DAG.
+        :type params: dict
+
+        :return: Airflow DAG object containing the jdbc operator
+        :rtype: JDBC operator
+        """
+
+        stage_index = params.get('stage_index', 0)
+        task_id = f"{query}_jdbc_{stage_index}"
+        stage_params = params.copy()
+        hql = self._sql_lookup(query, stage_params)
+        stage_params.update({"query": hql})
+        jdbc_op = HiveEmrOperator(
+            task_id=task_id,
+            trigger_rule='none_failed',
+            params=stage_params,
+            dag=dag
+        )
+
+        return jdbc_op
 

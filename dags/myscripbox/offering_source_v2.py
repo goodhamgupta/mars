@@ -17,6 +17,7 @@ DEFAULT_ARGS = {
 params = {
     'parent': 'msb_offering_source',
     'child': 'msb_offering_source_subdag',
+    'default_args': DEFAULT_ARGS,
     'snapshot_start': datetime.strptime("2019-07-21", "%Y-%m-%d"),
     'snapshot_end': datetime.strptime("2019-08-04", "%Y-%m-%d"),
     'start_date': DEFAULT_ARGS['start_date'],

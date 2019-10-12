@@ -47,6 +47,12 @@ REGISTRY_LATEST_RUN = """
   LIMIT 1;
 """
 
+REGISTRY_SOURCE_LATEST_RUN = """
+  SELECT
+    max(derived_tstamp)
+  FROM {source_table};
+"""
+
 REGISTRY_PENDINGS = """
   SELECT
   MIN(last_run_at)

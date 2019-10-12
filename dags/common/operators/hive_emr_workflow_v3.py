@@ -22,44 +22,41 @@ class HiveEmrWorkflowV2(BaseEmrWorkflow):
         """
         dag = DAG(
             f"{params.get('parent')}.{params.get('child')}",
+            default_args=params.get("default_args"),
             schedule_interval=params.get("schedule_interval"),
             start_date=params.get("start_date"),
         )
 
-        (external_table_adder, external_table_checker) = self._generate_emr_steps(
-            dag, "CREATE", params
-        )
-        (table_adder, table_checker) = self._generate_emr_steps(
-            dag, "CREATE_TMP", params
-        )
-        (count_adder, count_checker) = self._generate_emr_steps(dag, "COUNT", params)
+        external_table_op = self._generate_emr_steps_jdbc(dag, "CREATE", params)
+        table_adder_op = self._generate_emr_steps_jdbc(dag, "CREATE_TMP", params)
+        count_adder_op = self._generate_emr_steps_jdbc(dag, "COUNT", params)
+
         registry_creater = RegistryEmrWorkflow.registry_create(params)
 
-        registry_creater >> external_table_adder >> external_table_checker >> table_adder >> table_checker
+        registry_creater >> external_table_op >> table_adder_op
+        table_adder_op >> count_adder_op
 
-        count_adder >> count_checker
-
-        ops = [table_checker, count_adder]
+        ops = [table_adder_op, count_adder_op]
 
         return {"dag": dag, "ops": ops}
 
     def _create_core_dag(self, dag, params):
-        (query_adder, query_checker) = self._generate_emr_steps(
+        query_op = self._generate_emr_steps_jdbc(
             dag, "REPLICATE", params
         )
 
-        (insert_adder, insert_checker) = self._generate_emr_steps(dag, "INSERT", params)
+        insert_op = self._generate_emr_steps_jdbc(
+            dag, "INSERT", params
+        )
 
-        (delete_adder, delete_checker) = self._generate_emr_steps(
+        delete_op = self._generate_emr_steps_jdbc(
             dag, "DELETE_TMP", params
         )
-        query_adder >> query_checker
-        query_checker >> insert_adder >> insert_checker
-        insert_checker >> delete_adder >> delete_checker
+        query_op >> insert_op >> delete_op
 
-        return (query_adder, delete_checker)
+        return (query_op, delete_op)
 
-    def _create_dag(self, params, stage_params, base_dag_response):
+    def _create_dag_incremental(self, params, stage_params, base_dag_response):
         """
         Function to create and add all the downstream steps to the DAG.
 
@@ -74,21 +71,20 @@ class HiveEmrWorkflowV2(BaseEmrWorkflow):
         """
 
         dag = base_dag_response.get("dag")
-        [table_checker, count_adder] = base_dag_response.get("ops")
+        [table_adder_op, count_op] = base_dag_response.get("ops")
 
         dag_params = params.copy()
         dag_params.update(stage_params)
 
-        (registry_inserter, updated_params) = RegistryEmrWorkflow.registry_insert_incremental(dag_params)
+        registry_inserter = RegistryEmrWorkflow.registry_insert(dag_params)
+        registry_updater = RegistryEmrWorkflow.registry_update(dag_params)
 
-        registry_updater = RegistryEmrWorkflow.registry_update(updated_params)
+        (query_op, delete_op) = self._create_core_dag(dag, dag_params)
+        table_adder_op >> registry_inserter >> query_op
+        delete_op >> registry_updater
+        registry_updater >> count_op
 
-        (query_adder, delete_checker) = self._create_core_dag(dag, updated_params)
-        table_checker >> registry_inserter >> query_adder
-        delete_checker >> registry_updater
-        registry_updater >> count_adder
-
-        return True
+        return dag
 
     def _full_snapshot(self, params):
         """
@@ -100,19 +96,9 @@ class HiveEmrWorkflowV2(BaseEmrWorkflow):
         :return dag: Airflow DAG containing all downstream steps for the snapshot.
         :rtype dag: Airflow DAG
         """
-        base_dag_response = self._create_base_dag(params)
-        gen = self._get_dates(params)
-        for index, (snapshot_start, snapshot_end) in enumerate(gen):
-            stage_params = {
-                "stage_name": f"full_snapshot_stage_{index}",
-                "stage_index": index,
-                "snapshot_start": snapshot_start,
-                "snapshot_end": snapshot_end,
-            }
-            self._create_dag(params, stage_params, base_dag_response)
-
-        dag = base_dag_response.get("dag")
-        return dag
+        raise NotImplementedError(
+            "Full snapshot not available in V3. Please use V2 to get full snapshot and V3 to get increment snapshots."
+        )
 
     def _incremental_snapshot(self, params):
         """
@@ -124,7 +110,16 @@ class HiveEmrWorkflowV2(BaseEmrWorkflow):
         :return dag: Airflow DAG containing all downstream steps for the snapshot.
         :rtype dag: Airflow DAG
         """
-        raise NotImplementedError("Incremental snapshot not available in V2. Please use V3 to get incremental snapshot and V2 to get full snapshots.")
+        base_dag_response = self._create_base_dag(params)
+        (snapshot_start, snapshot_end_op) = RegistryEmrWorkflow.fetch_tstamps()
+        stage_params = {
+            "stage_name": f"incremental_snapshot_stage",
+            "snapshot_start": snapshot_start,
+            "snapshot_end_op": snapshot_end_op,
+        }
+
+        dag = self._create_dag_incremental(params, stage_params, base_dag_response)
+        return dag
 
     @classmethod
     def create(cls, params):
