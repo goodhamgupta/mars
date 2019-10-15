@@ -11,7 +11,7 @@ from hiveql.myscripbox.interim import offering_source
 
 class HiveEmrWorkflow:
     """
-    Class to create subdags for incremetal data imports into hive tables
+    Class to create subdags for incremental data imports into hive tables
     """
 
 

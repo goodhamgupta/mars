@@ -185,7 +185,7 @@ class BaseEmrWorkflow():
         task_id = f"{query}_jdbc_{stage_index}"
         stage_params = params.copy()
         hql = self._sql_lookup(query, stage_params)
-        stage_params.update({"query": hql})
+        stage_params.update({"hive_operator__query": hql})
         jdbc_op = HiveEmrOperator(
             task_id=task_id,
             trigger_rule='none_failed',
