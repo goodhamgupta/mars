@@ -54,25 +54,29 @@ class RegistryEmrWorkflowV2(BaseEmrWorkflow):
 
         return (last_run, current_run)
 
-    def _fetch_tstamps_full(self, params):
+    def _fetch_tstamps_incremental(self, params):
         """
-        Function to fetch the timestamps required for the full snapshot.
+        Function to fetch the timestamps required for the incremental snapshot.
 
-        :param params: Dict containing information for the full snapshot.
+        :param params: Dict containing information for the incremental snapshot.
         :type params: dict
 
         :return (last_run, current_run): Timestamps signifying snapshot_start and oeprator to fetch the snapshot_end from the source table using hiveql.
         :rtype: tuple(str, Operator)
         """
+        stage_params = params.copy()
+        dag = stage_params.get('dag')
         conn = self._create_conn()
         # Check for any pending executions.
-        pending_one = conn.get_first(self._sql_lookup("REGISTRY_PENDINGS", params))
+        pending_one = conn.get_first(
+            self._sql_lookup("REGISTRY_PENDINGS", stage_params)
+        )
 
         if pending_one[0]:
             last_run = pending_one[0]
         else:
             last_run_records = conn.get_first(
-                self._sql_lookup("REGISTRY_SELECT_MAX", params)
+                self._sql_lookup("REGISTRY_SELECT_MAX", stage_params)
             )
 
             if not last_run_records or not last_run_records[0]:
@@ -80,11 +84,13 @@ class RegistryEmrWorkflowV2(BaseEmrWorkflow):
             else:
                 last_run = last_run_records[0]
 
+        stage_params.update({"hive_operator__return_value": True})
+
         timestamp_op = self._generate_emr_steps_jdbc(
-            "REGISTRY_SOURCE_LATEST_RUN", dag, params
+            dag, "REGISTRY_SOURCE_LATEST_RUN", stage_params
         )
 
-        return (last_run, timestamp_op)
+        return (self._datetime_format(last_run), timestamp_op)
 
     def _create_registry(self, params):
         """
@@ -118,7 +124,7 @@ class RegistryEmrWorkflowV2(BaseEmrWorkflow):
         stage_params = params.copy()
         conn.run(self._sql_lookup("REGISTRY_INSERT", params))
 
-    def _insert_incremental(self, params):
+    def _insert_incremental(self, params, **kwargs):
         """
         Function to get registry timestamps for incremental runs.
 
@@ -132,7 +138,7 @@ class RegistryEmrWorkflowV2(BaseEmrWorkflow):
         :param params: Dict containing information for the snapshot
         :type params: dict
         """
-        task_instance = params.get('ti')
+        task_instance = kwargs.get('ti')
         if task_instance:
             snapshot_end = task_intance.xcom_pull(key='return_value', task_ids='registry_snapshot_end_0')
             stage_params = params.copy()
@@ -140,7 +146,7 @@ class RegistryEmrWorkflowV2(BaseEmrWorkflow):
             insert_op = PythonOperator(
                 task_id=f"registry_insert_0",
                 python_callable=self._insert_registry,
-                kwargs={"params": stage_params},
+                op_kwargs={"params": stage_params},
             )
             return (insert_op, stage_params)
         else:
@@ -168,9 +174,9 @@ class RegistryEmrWorkflowV2(BaseEmrWorkflow):
         obj = cls(params)
         registry_create = PythonOperator(
             task_id=f"registry_create_{obj.stage_index}",
-            pass_context=True,
+
             python_callable=obj._create_registry,
-            kwargs={"params": params},
+            op_kwargs={"params": params},
         )
 
         return registry_create
@@ -186,22 +192,21 @@ class RegistryEmrWorkflowV2(BaseEmrWorkflow):
         obj = cls(params)
         registry_insert = PythonOperator(
             task_id=f"registry_insert_{obj.stage_index}",
-            pass_context=True,
+
             python_callable=obj._insert_registry,
-            kwargs={"params": params},
+            op_kwargs={"params": params},
         )
         return registry_insert
 
     @classmethod
     def registry_insert_incremental(cls, params):
         obj = cls(params)
-        registry_insert_incremental = PythonOperator(
+        (registry_insert_incremental, updated_params) = PythonOperator(
             task_id=f"registry_snapshot_end_{obj.stage_index}",
-            pass_context=True,
-            python_callable=obj._insert_registry_incremetal,
-            kwargs={"params": params},
+            python_callable=obj._insert_incremental,
+            op_args={"params": params},
         )
-        return registry_insert_incremental
+        return (registry_insert_incremental, updated_params)
 
     @classmethod
     def registry_update(cls, params):
@@ -214,9 +219,9 @@ class RegistryEmrWorkflowV2(BaseEmrWorkflow):
         obj = cls(params)
         registry_update = PythonOperator(
             task_id=f"registry_update_{obj.stage_index}",
-            pass_context=True,
+
             python_callable=obj._update_registry,
-            kwargs={"params": params},
+            op_kwargs={"params": params},
         )
 
         return registry_update
@@ -230,9 +235,9 @@ class RegistryEmrWorkflowV2(BaseEmrWorkflow):
         :type params: dict
         """
         obj = cls(params)
-        if params.get("snapshot_type") == "full":
-            last_run, current_run = obj._fetch_tstamps_full(params)
-            return last_run, current_run
-        else:
-            last_run, latest_timestamp_op = obj._fetch_tstamps_incremetal(params)
-            return last_run, latest_timestamp_op
+        #if params.get("snapshot_type") == "full":
+        #    last_run, current_run = obj._fetch_tstamps_full(params)
+        #    return last_run, current_run
+        #else:
+        (last_run, latest_timestamp_op) = obj._fetch_tstamps_incremental(params)
+        return (last_run, latest_timestamp_op)

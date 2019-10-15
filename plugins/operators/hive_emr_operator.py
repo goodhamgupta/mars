@@ -11,16 +11,16 @@ class HiveEmrOperator(BaseOperator):
     Operator to use JDBC for Hive connections
     """
 
-    ui_color = "#A6E6A6"
+    ui_color = "#ffb84d"
 
     @apply_defaults
     def __init__(self, params, *args, **kwargs):
 
         super(HiveEmrOperator, self).__init__(*args, **kwargs)
-        self.hive_connection = params.get("hive_connection", "hive_again")
-        self.async_flag = params.get("async", True)
-        self.query = params.get("query")
-        self.return_value = params.get("return_value", False)
+        self.hive_connection = params.get("hive_operator__connection", "hive_again")
+        self.async_flag = params.get("hive_operator__async", True)
+        self.query = params.get("hive_operator__query")
+        self.return_value = params.get("hive_operator__return_value", False)
 
     def _create_cursor(self):
         """
@@ -46,9 +46,12 @@ class HiveEmrOperator(BaseOperator):
             # polling logic
             pass
         else:
-            cursor.execute(self.query, async_=self.async_flag)
-            for line in cursor.fetch_logs():
-                print(line)
+            # FIXME: Hack to execute multiple queries. Ideally, execute only one query per variable in the hiveql file.
+            queries = self.query.split(";")
+            for query in queries:
+                cursor.execute(query, async_=self.async_flag)
+                for line in cursor.fetch_logs():
+                    print(line)
             if self.return_value:
                 return cursor.fetchall()
 

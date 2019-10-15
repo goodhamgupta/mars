@@ -2,12 +2,12 @@ from datetime import datetime, timedelta
 from airflow.models import DAG
 from airflow.operators.python_operator import PythonOperator
 from common.operators.base_emr_workflow import BaseEmrWorkflow
-from common.operators.registry_emr_workflow import RegistryEmrWorkflow
+from common.operators.registry_emr_workflow_v2 import RegistryEmrWorkflowV2
 
 
-class HiveEmrWorkflowV2(BaseEmrWorkflow):
+class HiveEmrWorkflowV3(BaseEmrWorkflow):
     """
-    V2 of the Hive EMR Workflow
+    V3 of the Hive EMR Workflow
     """
 
     def __init__(self):
@@ -31,27 +31,20 @@ class HiveEmrWorkflowV2(BaseEmrWorkflow):
         table_adder_op = self._generate_emr_steps_jdbc(dag, "CREATE_TMP", params)
         count_adder_op = self._generate_emr_steps_jdbc(dag, "COUNT", params)
 
-        registry_creater = RegistryEmrWorkflow.registry_create(params)
+        registry_creater = RegistryEmrWorkflowV2.registry_create(params)
 
         registry_creater >> external_table_op >> table_adder_op
-        table_adder_op >> count_adder_op
 
         ops = [table_adder_op, count_adder_op]
 
         return {"dag": dag, "ops": ops}
 
     def _create_core_dag(self, dag, params):
-        query_op = self._generate_emr_steps_jdbc(
-            dag, "REPLICATE", params
-        )
+        query_op = self._generate_emr_steps_jdbc(dag, "REPLICATE", params)
 
-        insert_op = self._generate_emr_steps_jdbc(
-            dag, "INSERT", params
-        )
+        insert_op = self._generate_emr_steps_jdbc(dag, "INSERT", params)
 
-        delete_op = self._generate_emr_steps_jdbc(
-            dag, "DELETE_TMP", params
-        )
+        delete_op = self._generate_emr_steps_jdbc(dag, "DELETE_TMP", params)
         query_op >> insert_op >> delete_op
 
         return (query_op, delete_op)
@@ -76,11 +69,15 @@ class HiveEmrWorkflowV2(BaseEmrWorkflow):
         dag_params = params.copy()
         dag_params.update(stage_params)
 
-        registry_inserter = RegistryEmrWorkflow.registry_insert(dag_params)
-        registry_updater = RegistryEmrWorkflow.registry_update(dag_params)
+        latest_timestamp_op = dag_params.get("latest_timestamp_op")
+
+        registry_inserter = RegistryEmrWorkflowV2.registry_insert(dag_params)
+        registry_updater = RegistryEmrWorkflowV2.registry_update(dag_params)
 
         (query_op, delete_op) = self._create_core_dag(dag, dag_params)
-        table_adder_op >> registry_inserter >> query_op
+
+        table_adder_op >> latest_timestamp_op
+        latest_timestamp_op >> registry_inserter >> query_op
         delete_op >> registry_updater
         registry_updater >> count_op
 
@@ -111,12 +108,20 @@ class HiveEmrWorkflowV2(BaseEmrWorkflow):
         :rtype dag: Airflow DAG
         """
         base_dag_response = self._create_base_dag(params)
-        (snapshot_start, snapshot_end_op) = RegistryEmrWorkflow.fetch_tstamps()
-        stage_params = {
-            "stage_name": f"incremental_snapshot_stage",
-            "snapshot_start": snapshot_start,
-            "snapshot_end_op": snapshot_end_op,
-        }
+        stage_params = params.copy()
+        stage_params.update({"dag": base_dag_response.get("dag")})
+
+        (snapshot_start, latest_timestamp_op) = RegistryEmrWorkflowV2.fetch_tstamps(
+            stage_params
+        )
+
+        stage_params.update(
+            {
+                "stage_name": "incremental_snapshot_stage",
+                "snapshot_start": snapshot_start,
+                "latest_timestamp_op": latest_timestamp_op,
+            }
+        )
 
         dag = self._create_dag_incremental(params, stage_params, base_dag_response)
         return dag
@@ -124,17 +129,21 @@ class HiveEmrWorkflowV2(BaseEmrWorkflow):
     @classmethod
     def create(cls, params):
         """
-        Function to create the sub dag to create derived tables in hive. Each sub dag has the following steps: - For a selected time range, we first fetch the data using a hive query
-        - Store the result in a temporary table(EMR Step)
-        - Write this temporary table to S3(EMR Step)
-        - Monitor thestatus of the writes.(EMR Sensor)
-        - Repeat this for all time slices.
+        Function to create the sub dag to create derived tables in hive
 
-        Because the time range is split into slices(usually of size 7 days), longer time ranges will have many EMR steps.
-        Make sure the time ranges picked are short or you can afford to wait for a long time for all the steps to complete.
+        :param params: Dict containing information for the snapshot snapshot.
+        :type params: dict
+
+        :return dag: Airflow DAG containing all downstream steps for the snapshot.
+        :rtype dag: Airflow DAG
         """
         obj = cls()
-        if params.get("snapshot_type") == "full":
+        snapshot_type = params.get("snapshot_type")
+        if snapshot_type == "full":
             return obj._full_snapshot(params)
-        else:
+        elif snapshot_type == "incremental":
             return obj._incremental_snapshot(params)
+        else:
+            raise ValueError(
+                "Invalid snapshot_type argument. It should be one of the following: full, incremental"
+            )

@@ -28,15 +28,15 @@ params = {
     'destination': 'offering_source'
 }
 
-main_dag = DAG(
-  dag_id=params['parent'],
-  schedule_interval=timedelta(days=1),
-  start_date=datetime(2019, 7, 11)
-)
-
-sub_dag = SubDagOperator(
-  subdag=HiveEmrWorkflow.create(params),
-  task_id=params['child'],
-  dag=main_dag
-)
-
+#main_dag = DAG(
+#  dag_id=params['parent'],
+#  schedule_interval=timedelta(days=1),
+#  start_date=datetime(2019, 7, 11)
+#)
+#
+#sub_dag = SubDagOperator(
+#  subdag=HiveEmrWorkflow.create(params),
+#  task_id=params['child'],
+#  dag=main_dag
+#)
+#

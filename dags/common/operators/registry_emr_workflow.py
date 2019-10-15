@@ -135,7 +135,6 @@ class RegistryEmrWorkflow(BaseEmrWorkflow):
         obj = cls(params)
         registry_create = PythonOperator(
             task_id=f"registry_create_{obj.stage_index}",
-            pass_context=True,
             python_callable=obj._create_registry,
             op_kwargs={"params": params},
         )
@@ -153,7 +152,6 @@ class RegistryEmrWorkflow(BaseEmrWorkflow):
         obj = cls(params)
         registry_insert = PythonOperator(
             task_id=f"registry_insert_{obj.stage_index}",
-            pass_context=True,
             python_callable=obj._insert_registry,
             op_kwargs={"params": params},
         )
@@ -176,7 +174,6 @@ class RegistryEmrWorkflow(BaseEmrWorkflow):
         obj = cls(params)
         registry_update = PythonOperator(
             task_id=f"registry_update_{obj.stage_index}",
-            pass_context=True,
             python_callable=obj._update_registry,
             op_kwargs={"params": params},
         )
