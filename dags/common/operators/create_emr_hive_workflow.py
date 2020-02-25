@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from sbemr import EmrClient
 
 
-class CreateEmrSparkWorkflow:
+class CreateEmrHiveWorkflow:
     """
     Class containing methods to create EMR cluster and
     initialize the spark session.

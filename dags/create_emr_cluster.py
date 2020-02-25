@@ -4,7 +4,7 @@ from datetime import timedelta
 import airflow
 from airflow import DAG
 from airflow.models import Variable
-from common.operators.create_emr_spark_workflow import CreateEmrSparkWorkflow
+from common.operators.create_emr_hive_workflow import CreateEmrHiveWorkflow
 
 
 params = {
@@ -18,4 +18,4 @@ params = {
     }
 }
 
-dag = CreateEmrSparkWorkflow.create(params)
+dag = CreateEmrHiveWorkflow.create(params)
