@@ -17,7 +17,6 @@ chardet==3.0.4
 Click==7.0
 cloudant==0.5.10
 colorama==0.4.1
--e git+ssh://git@code.scripbox.io:12022/scripbox/mars.git@5277d2e9f6650d2933f38f4121397b8d1a321d32#egg=common&subdirectory=dags/common
 configparser==3.5.3
 croniter==0.3.30
 cryptography==2.7
@@ -45,7 +44,6 @@ future-fstrings==1.1.0
 gitdb2==2.0.5
 GitPython==2.1.11
 gunicorn==19.9.0
--e git+ssh://git@code.scripbox.io:12022/scripbox/mars.git@5277d2e9f6650d2933f38f4121397b8d1a321d32#egg=hiveql&subdirectory=hiveql
 hmsclient==0.1.1
 idna==2.8
 importlib-metadata==0.18
