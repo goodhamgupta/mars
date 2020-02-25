@@ -1,6 +1,6 @@
 # Mars
 
-Mars contains our in-house scripts to perform ETL on data from events and create custom derived tables/views.
+Mars is a platform to perform ETL on data from events and create custom derived tables/views.
 
 ## Installation
 
