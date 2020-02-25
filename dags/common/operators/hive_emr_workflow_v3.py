@@ -93,9 +93,7 @@ class HiveEmrWorkflowV3(BaseEmrWorkflow):
         :return dag: Airflow DAG containing all downstream steps for the snapshot.
         :rtype dag: Airflow DAG
         """
-        raise NotImplementedError(
-            "Full snapshot not available in V3. Please use V2 to get full snapshot and V3 to get increment snapshots."
-        )
+        raise NotImplementedError( "Full snapshot not available in V3. Please use V2 to get full snapshot and V3 to get increment snapshots.")
 
     def _incremental_snapshot(self, params):
         """
