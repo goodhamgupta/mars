@@ -11,12 +11,12 @@ from hiveql.myscripbox.interim import offering_source
 
 class HiveEmrWorkflow:
     """
-    Class to create subdags for incremetal data imports into hive tables
+    Class to create subdags for incremental data imports into hive tables
     """
 
 
     def __init__(self, params):
-        self.cluster_key = Variable.get('cluster_key')
+        self.cluster_key = Variable.get('cluster_key', 'dummy_cluster')
         self.params = params
         self.source_app = params.get('source_app', 'milkyway')
         self.parent = params.get('parent', 'test')

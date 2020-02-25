@@ -5,11 +5,11 @@ REGISTRY_CREATE = """
     last_run_at TIMESTAMP NOT NULL,
     succeeded TINYINT DEFAULT NULL,
     PRIMARY KEY (id)
-  );
+  )
 """
 
 REGISTRY_EXIST = """
-  SHOW TABLES LIKE '{registry_table}';
+  SHOW TABLES LIKE '{registry_table}'
 """
 
 REGISTRY_INSERT = """
@@ -36,7 +36,7 @@ REGISTRY_FAILURE = """
 
 REGISTRY_ALTER = """
   ALTER TABLE {registry_table}
-  ADD COLUMN succeeded TINYINT DEFAULT NULL;
+  ADD COLUMN succeeded TINYINT DEFAULT NULL
 """
 
 REGISTRY_LATEST_RUN = """
@@ -44,7 +44,14 @@ REGISTRY_LATEST_RUN = """
     last_run_at
   FROM {registry_table}
   ORDER BY id DESC
-  LIMIT 1;
+  LIMIT 1
+"""
+
+REGISTRY_SOURCE_LATEST_RUN = """
+  SELECT
+    max(derived_tstamp)
+  FROM {source_table}
+  WHERE run >= '{snapshot_start}'
 """
 
 REGISTRY_PENDINGS = """
@@ -52,7 +59,7 @@ REGISTRY_PENDINGS = """
   MIN(last_run_at)
     FROM {registry_table}
     WHERE
-  succeeded=0;
+  succeeded=0
 """
 
 REGISTRY_SELECT_MAX = """
@@ -60,7 +67,7 @@ REGISTRY_SELECT_MAX = """
     current_run_at
   FROM {registry_table}
   ORDER BY id DESC
-  LIMIT 1;
+  LIMIT 1
 """
 
 CREATE_TMP = """
