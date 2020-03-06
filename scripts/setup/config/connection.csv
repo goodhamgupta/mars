@@ -9,7 +9,7 @@
         ""LogUri"": ""s3n://aws-logs-711318293644-ap-south-1/elasticmapreduce/"",
         ""ReleaseLabel"": ""emr-5.23.0"",
         ""Instances"": {
-            ""Ec2KeyName"": ""shubham.gupta@scripbox.com"",
+            ""Ec2KeyName"": ""userec2key.com"",
             ""AdditionalSlaveSecurityGroups"": [
                 ""sg-0838bb1964136426c""
             ],
