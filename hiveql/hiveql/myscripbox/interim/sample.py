@@ -45,7 +45,7 @@ CREATE = """
     )
     PARTITIONED BY (derived_tstamp_month int, derived_tstamp_year int)
     STORED AS ORC
-    LOCATION "{external_table_location}";
+    LOCATION "{external_table_location}"
 """
 
 REPLICATE = """
@@ -69,9 +69,9 @@ REPLICATE = """
                se_value,
                run
         FROM {source_table}
-        WHERE se_category = 'offering-crorepati'
+        WHERE se_category LIKE '%your_filter%'
         AND run >= '{snapshot_start}' AND run < '{snapshot_end}'
-    );
+    )
 """
 
 INSERT = """
@@ -98,23 +98,23 @@ INSERT = """
                derived_tstamp_year
         FROM {table}
         WHERE run >= '{snapshot_start}' AND run < '{snapshot_end}'
-    );
+    )
 """
 
 DELETE_TMP = """
     -- Dummy {source_table}
     DELETE FROM {table}
     WHERE
-      run >= '{snapshot_start}' AND run < '{snapshot_end}';
+      run >= '{snapshot_start}' AND run < '{snapshot_end}'
 """
 PURGE = """
-    DELETE FROM {table};
+    DELETE FROM {table}
 """
 
 REMOVE_TMP = """
-    DROP TABLE {table};
+    DROP TABLE {table}
 """
 
 COUNT = """
-    SELECT COUNT(1) from {table};
+    SELECT COUNT(1) from {table}
 """
