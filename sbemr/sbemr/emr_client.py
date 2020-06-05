@@ -1,3 +1,4 @@
+from typing import Dict
 import boto3, json, pprint, requests, textwrap, time, logging
 from airflow.models import Variable
 from datetime import datetime
@@ -16,9 +17,11 @@ class EmrClient:
             aws_secret_access_key=Variable.get("aws_secret_access_key"),
         )
 
-    def get_cluster_dns(self, cluster_key):
+    def get_cluster_dns(self, cluster_key: str) -> str:
         """
         Function to get the Master server DNS given the cluster_key
+
+        :param cluster_key: Key to identify EMR cluster
 
         :return: Master server DNS
         :rtype str
@@ -27,13 +30,13 @@ class EmrClient:
         logging.info(response)
         return response["Cluster"]["MasterPublicDnsName"]
 
-    def wait_for_cluster_creation(self, cluster_key):
+    def wait_for_cluster_creation(self, cluster_key: str):
         """
         Wait till EMR cluster is in "Ready" state. This is required because the public DNS for the cluster will be created only once the cluster is ready.
         """
         self.client.get_waiter("cluster_running").wait(ClusterId=cluster_key)
 
-    def create_spark_session(self, kind="sql"):
+    def create_spark_session(self, kind: str="sql") -> Dict[str,str]:
         """
         Creates an interactive scala spark session.
 
@@ -56,7 +59,7 @@ class EmrClient:
         logging.info(response.json())
         return response.headers
 
-    def wait_for_idle_session(self, master_dns, response_headers):
+    def wait_for_idle_session(self, master_dns: str, response_headers: Dict[str, str]) -> str:
         """
         Wait for the session to be idle or ready for job submission
 
@@ -78,7 +81,7 @@ class EmrClient:
             logging.info("Session status: " + status)
         return session_url
 
-    def kill_spark_session(self, session_url):
+    def kill_spark_session(self, session_url: str) -> Dict[str, str]:
         """
         Function to kill the spark session
 
@@ -90,7 +93,7 @@ class EmrClient:
         """
         requests.delete(session_url, headers={"Content-Type": "application/json"})
 
-    def submit_statement(self, session_url, statement_path):
+    def submit_statement(self, session_url: str, statement_path: str) -> Dict[str, str]:
         """
         Submits the spark code as a simple JSON command to the Livy server
 

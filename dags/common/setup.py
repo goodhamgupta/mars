@@ -1,12 +1,12 @@
 from setuptools import find_packages, setup
 
 
-setup(name='common',
+setup(name='common', #Ideally this should be called mars_extensions.
       version='0.0.1',
-      description='Lol',
+      description="Operators for Mars specific airflow DAGS"
       url='',
       author='goodhamgupta',
-      author_email='shubham.gupta@scripbox.com',
+      author_email='shubhamg2208@live.com",
       packages=find_packages(exclude=['contrib', 'docs', 'tests']),
       classifiers=[
         # How mature is this project? Common values are

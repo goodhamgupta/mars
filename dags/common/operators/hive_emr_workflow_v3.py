@@ -26,27 +26,28 @@ class HiveEmrWorkflowV3(BaseEmrWorkflow):
             schedule_interval=params.get("schedule_interval"),
             start_date=params.get("start_date"),
         )
-
         external_table_op = self._generate_emr_steps_jdbc(dag, "CREATE", params)
         table_adder_op = self._generate_emr_steps_jdbc(dag, "CREATE_TMP", params)
         count_adder_op = self._generate_emr_steps_jdbc(dag, "COUNT", params)
-
         registry_creater = RegistryEmrWorkflowV2.registry_create(params)
-
         registry_creater >> external_table_op >> table_adder_op
-
         ops = [table_adder_op, count_adder_op]
-
         return {"dag": dag, "ops": ops}
 
     def _create_core_dag(self, dag, params):
+        """
+        Function to add the core steps for the DAG. These core steps are:
+        - REPLICATE: This step fetches the data from S3 and stores it in HDFS.
+        - INSERT:  This step inserts the data from HDFS to the target S3 folder
+        - DELETE_TMP: This step removes the data that was copied to HDFS. This is to ensure there are no unexpected disk space errors.
+
+        :param dag: Source DAG to which these steps will be added
+        :params params: Dictionary containing the paramters for the steps such as start_date, end_date, source_table, etc.
+        """
         query_op = self._generate_emr_steps_jdbc(dag, "REPLICATE", params)
-
         insert_op = self._generate_emr_steps_jdbc(dag, "INSERT", params)
-
         delete_op = self._generate_emr_steps_jdbc(dag, "DELETE_TMP", params)
         query_op >> insert_op >> delete_op
-
         return (query_op, delete_op)
 
     def _create_dag_incremental(self, params, stage_params, base_dag_response):
@@ -93,7 +94,10 @@ class HiveEmrWorkflowV3(BaseEmrWorkflow):
         :return dag: Airflow DAG containing all downstream steps for the snapshot.
         :rtype dag: Airflow DAG
         """
-        raise NotImplementedError( "Full snapshot not available in V3. Please use V2 to get full snapshot and V3 to get increment snapshots.")
+        raise NotImplementedError(
+            "Full snapshot not available in V3. Please use V2 to get full snapshot and"
+            " V3 to get increment snapshots."
+        )
 
     def _incremental_snapshot(self, params):
         """
@@ -143,5 +147,6 @@ class HiveEmrWorkflowV3(BaseEmrWorkflow):
             return obj._incremental_snapshot(params)
         else:
             raise ValueError(
-                "Invalid snapshot_type argument. It should be one of the following: full, incremental"
+                "Invalid snapshot_type argument. It should be one of the following:"
+                " full, incremental"
             )
