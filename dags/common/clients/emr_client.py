@@ -118,7 +118,7 @@ class EmrClient:
         logging.info(response.json())
         return response
 
-    def track_statement_progress(self, master_dns, response_headers):
+    def track_statement_progress(self, master_dns: str, response_headers: Dict[str, str]) -> bool:
         """
         Function to help track the progress of the scala code submitted to Apache Livy
 
@@ -163,7 +163,7 @@ class EmrClient:
         logging.info("Final Statement Status: " + final_statement_status)
         return True
 
-    def get_public_ip(self):
+    def get_public_ip(self) -> str:
         """
         Function to fetch the EMR public address
 

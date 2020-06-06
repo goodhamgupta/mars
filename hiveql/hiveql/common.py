@@ -1,3 +1,8 @@
+"""
+This class contains the base queries that are used in the BaseWorkflow. These are the default queries that are applied in a workflow
+if they are not overwritten.
+"""
+
 REGISTRY_CREATE = """
   CREATE TABLE {registry_table} (
     Id INT NOT NULL AUTO_INCREMENT,

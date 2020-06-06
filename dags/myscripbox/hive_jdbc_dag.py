@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from airflow.models import DAG
 from airflow.operators.subdag_operator import SubDagOperator
 from airflow.operators.python_operator import PythonOperator
-from airflow.operators import HiveEmrOperator
+from common.operators import HiveEmrOperator
 from hiveql.myscripbox.interim import offering_source
 
 DEFAULT_ARGS = {

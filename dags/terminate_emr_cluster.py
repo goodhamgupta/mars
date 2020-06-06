@@ -30,7 +30,7 @@ DEFAULT_ARGS = {
     'owner': 'shubham',
     'depends_on_past': False,
     'start_date': airflow.utils.dates.days_ago(2),
-    'email': ['shubham.gupta@scripbox.com'],
+    'email': ['shubhamg2208@live.com'],
     'email_on_failure': False,
     'email_on_retry': False
 }
