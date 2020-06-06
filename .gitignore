@@ -7,3 +7,4 @@ logs/scheduler/*
 unittests.cfg
 .DS_Store
 logs/*
+docs/_build/*

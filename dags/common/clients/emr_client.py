@@ -24,7 +24,7 @@ class EmrClient:
         :param cluster_key: Key to identify EMR cluster
 
         :return: Master server DNS
-        :rtype str
+        :rtype: str
         """
         response = self.client.describe_cluster(ClusterId=cluster_key)
         logging.info(response)
@@ -47,7 +47,7 @@ class EmrClient:
         :type str
 
         :return: Dict containing response headers
-        :rtype dict
+        :rtype: dict
         """
         cluster_dns = Variable.get("cluster_dns")
         host = f"http://{cluster_dns}:8998"  # 8998: Apache Livy server
@@ -69,7 +69,7 @@ class EmrClient:
         :type dict
 
         :return: Session URL
-        :rtype str
+        :rtype: str
         """
         status = ""
         host = "http://" + master_dns + ":8998"
@@ -89,7 +89,7 @@ class EmrClient:
         :type str
 
         :return: Delete response
-        :rtype dict
+        :rtype: dict
         """
         requests.delete(session_url, headers={"Content-Type": "application/json"})
 
@@ -104,7 +104,7 @@ class EmrClient:
         :type str
 
         :return: Response object
-        :rtype dict
+        :rtype: dict
         """
         statements_url = f"session_url/statements"
         with open(statement_path, "r") as f:
@@ -128,7 +128,7 @@ class EmrClient:
         :type dict
 
         :return: Boolean specifying status of the statement.
-        :rtype bool
+        :rtype: bool
         """
         statement_status = ""
         host = f"http://{master_dns}:8998"
@@ -168,7 +168,7 @@ class EmrClient:
         Function to fetch the EMR public address
 
         :return: Public IP address for EMR cluster
-        :rtype str
+        :rtype: str
         """
         instances = emr.list_instances(
             ClusterId=self.cluster_key, InstanceGroupTypes=["MASTER"]
