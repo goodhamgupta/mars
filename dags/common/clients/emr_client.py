@@ -33,6 +33,8 @@ class EmrClient:
     def wait_for_cluster_creation(self, cluster_key: str):
         """
         Wait till EMR cluster is in "Ready" state. This is required because the public DNS for the cluster will be created only once the cluster is ready.
+
+        :param cluster_key: Key to identify EMR cluster
         """
         self.client.get_waiter("cluster_running").wait(ClusterId=cluster_key)
 
@@ -41,10 +43,10 @@ class EmrClient:
         Creates an interactive scala spark session.
 
         :param kind: Type of spark session. It can be one of the following:
+
         - pyspark => Python
         - sparkr => R
         - sql => SQL
-        :type str
 
         :return: Dict containing response headers
         :rtype: dict
@@ -64,9 +66,7 @@ class EmrClient:
         Wait for the session to be idle or ready for job submission
 
         :param master_dns: Public URL for the EMR cluster
-        :type str
         :param response_headers: Response headers for the create spark session request
-        :type dict
 
         :return: Session URL
         :rtype: str
@@ -86,7 +86,6 @@ class EmrClient:
         Function to kill the spark session
 
         :param session_url: URL for spark session
-        :type str
 
         :return: Delete response
         :rtype: dict
@@ -123,9 +122,7 @@ class EmrClient:
         Function to help track the progress of the scala code submitted to Apache Livy
 
         :param master_dns: Public URL for the EMR cluster
-        :type str
         :param response_headers: Response headers for the create spark session request
-        :type dict
 
         :return: Boolean specifying status of the statement.
         :rtype: bool

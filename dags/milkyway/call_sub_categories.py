@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Airflow DAG for call sub categories
-from operators.sqoop_emr_workflow import SqoopEmrWorkflow
+from dags.common.operators.sqoop_emr_workflow import SqoopEmrWorkflow
 from airflow import DAG
 
 

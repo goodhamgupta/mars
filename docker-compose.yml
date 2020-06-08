@@ -1,0 +1,18 @@
+# WARNING: this file is not suitable for production, please use with caution
+version: '3'
+
+services:
+  db:
+    image: postgres
+    ports:
+        - "0.0.0.0:5432:5432"
+    environment:
+      - POSTGRES_USER=mars
+      - POSTGRES_PASSWORD=mars
+        #volumes:
+        #  - postgresql:/var/lib/postgresql
+        #  # This needs explicit mapping due to https://github.com/docker-library/postgres/blob/4e48e3228a30763913ece952c611e5e9b95c8759/Dockerfile.template#L52
+        #  - postgresql_data:/var/lib/postgresql/data
+volumes:
+  postgresql:
+  postgresql_data:
