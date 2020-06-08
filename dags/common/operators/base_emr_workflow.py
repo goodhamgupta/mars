@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List, Tuple
 from datetime import datetime, timedelta
 
 from airflow.contrib.operators.emr_add_steps_operator import EmrAddStepsOperator
@@ -7,8 +7,7 @@ from airflow.hooks import MySqlHook
 from airflow.models import Variable
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
-from common.operators import HiveEmrOperator
-from hiveql import common as common_hiveql
+from .hive_emr_operator import HiveEmrOperator
 
 
 class BaseEmrWorkflow:
