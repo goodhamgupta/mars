@@ -5,7 +5,7 @@ Mars is a tool based on Apache Airflow to interact with multiple data sources us
 is to provide a framework to import data into a single data lake, perform necessary computations and store the
 result in a data store of your choice!
 
-Mars was initially built explicity to work with the schema present in Snowplow Analytics, but it's extensibility
+Mars was initially built _explicity_ to work with the schema present in Snowplow Analytics, but it's extensibility
 ensures that adding new modules is a breeze!
 
 Features
