@@ -1,10 +1,12 @@
 import logging
+from datetime import datetime, timedelta
+
 from airflow import settings
 from airflow.models import DAG, Variable, Connection
 from airflow.operators.python_operator import PythonOperator
-from common.operators.create_job_flow_operator import MarsEmrCreateJobFlowOperator
-from datetime import datetime, timedelta
-from sbemr import EmrClient
+
+from .create_job_flow_operator import MarsEmrCreateJobFlowOperator
+from ..clients import EmrClient
 
 
 class CreateEmrHiveWorkflow:

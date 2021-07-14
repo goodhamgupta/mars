@@ -129,6 +129,7 @@ class RegistryEmrWorkflowV2(BaseEmrWorkflow):
         Function to get registry timestamps for incremental runs.
 
         For fixing the timestamp problem, we will fetch the timestamps as follows:
+
         - The last_run_at timestamp for which succeded=1 will be the the current_run_at timestamp
         - For the current_run_at, we will fetch the maximum timestamp for the source table(i.e atomic.events) and use that INSTEAD of the current timestamp.
         - The advatange of using this method is:

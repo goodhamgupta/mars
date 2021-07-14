@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Mars Documentation &#8212; Mars  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="mars-documentation">
+<h1>Mars Documentation<a class="headerlink" href="#mars-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Mars is a tool based on Apache Airflow to interact with multiple data sources using Hive and HDFS. The main aim
+is to provide a framework to import data into a single data lake, perform necessary computations and store the
+result in a data store of your choice!</p>
+<p>Mars was initially built _explicity_ to work with the schema present in Snowplow Analytics, but it’s extensibility
+ensures that adding new modules is a breeze!</p>
+</div>
+<div class="section" id="features">
+<h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><strong>Diverse Sources</strong>: Interact and import data from a variety of sources such as MySQL, Postgres, S3 using tools such as
+Sqoop and Hive.</p></li>
+<li><p><strong>SQL</strong>: The core of mars is based on supporting queries using HiveQL, which is very similar to SQL.</p></li>
+<li><p><strong>Dynamic DAGs</strong>: DAGs defined with paramters are automatically split into smaller and more modular tasks, allowing you to work with
+large amounts of data.</p></li>
+<li><p><strong>Monitoring</strong>: Monitor all your tasks with notifications on your favorite apps such as Slack, PagerDuty, etc.</p></li>
+</ul>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+</tbody>
+</table>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/bash_emr_step/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bash_emr_step</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/terminate_emr_cluster/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">terminate_emr_cluster</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/create_emr_cluster/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">create_emr_cluster</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/common/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">common</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/atomic_events/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">atomic_events</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/campaign_outcomes/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">campaign_outcomes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/call_tag_call_outcomes/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">call_tag_call_outcomes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/investor_campaigns/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">investor_campaigns</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/tickets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">tickets</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/campaign_templates/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">campaign_templates</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/call_sub_categories/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">call_sub_categories</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/exotel_responses/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">exotel_responses</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/call_tags/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">call_tags</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/offering_source_v2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">offering_source_v2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/offering_source/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">offering_source</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/offering_crorepati/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">offering_crorepati</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/offering_source_v3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">offering_source_v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/hive_jdbc_dag/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hive_jdbc_dag</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Mars</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Shubham Gupta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

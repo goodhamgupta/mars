@@ -1,3 +1,4 @@
+from typing import Dict
 import boto3, json, pprint, requests, textwrap, time, logging
 from airflow.models import Variable
 from datetime import datetime
@@ -16,35 +17,39 @@ class EmrClient:
             aws_secret_access_key=Variable.get("aws_secret_access_key"),
         )
 
-    def get_cluster_dns(self, cluster_key):
+    def get_cluster_dns(self, cluster_key: str) -> str:
         """
         Function to get the Master server DNS given the cluster_key
 
+        :param cluster_key: Key to identify EMR cluster
+
         :return: Master server DNS
-        :rtype str
+        :rtype: str
         """
         response = self.client.describe_cluster(ClusterId=cluster_key)
         logging.info(response)
         return response["Cluster"]["MasterPublicDnsName"]
 
-    def wait_for_cluster_creation(self, cluster_key):
+    def wait_for_cluster_creation(self, cluster_key: str):
         """
         Wait till EMR cluster is in "Ready" state. This is required because the public DNS for the cluster will be created only once the cluster is ready.
+
+        :param cluster_key: Key to identify EMR cluster
         """
         self.client.get_waiter("cluster_running").wait(ClusterId=cluster_key)
 
-    def create_spark_session(self, kind="sql"):
+    def create_spark_session(self, kind: str="sql") -> Dict[str,str]:
         """
         Creates an interactive scala spark session.
 
         :param kind: Type of spark session. It can be one of the following:
+
         - pyspark => Python
         - sparkr => R
         - sql => SQL
-        :type str
 
         :return: Dict containing response headers
-        :rtype dict
+        :rtype: dict
         """
         cluster_dns = Variable.get("cluster_dns")
         host = f"http://{cluster_dns}:8998"  # 8998: Apache Livy server
@@ -56,17 +61,15 @@ class EmrClient:
         logging.info(response.json())
         return response.headers
 
-    def wait_for_idle_session(self, master_dns, response_headers):
+    def wait_for_idle_session(self, master_dns: str, response_headers: Dict[str, str]) -> str:
         """
         Wait for the session to be idle or ready for job submission
 
         :param master_dns: Public URL for the EMR cluster
-        :type str
         :param response_headers: Response headers for the create spark session request
-        :type dict
 
         :return: Session URL
-        :rtype str
+        :rtype: str
         """
         status = ""
         host = "http://" + master_dns + ":8998"
@@ -78,19 +81,18 @@ class EmrClient:
             logging.info("Session status: " + status)
         return session_url
 
-    def kill_spark_session(self, session_url):
+    def kill_spark_session(self, session_url: str) -> Dict[str, str]:
         """
         Function to kill the spark session
 
         :param session_url: URL for spark session
-        :type str
 
         :return: Delete response
-        :rtype dict
+        :rtype: dict
         """
         requests.delete(session_url, headers={"Content-Type": "application/json"})
 
-    def submit_statement(self, session_url, statement_path):
+    def submit_statement(self, session_url: str, statement_path: str) -> Dict[str, str]:
         """
         Submits the spark code as a simple JSON command to the Livy server
 
@@ -101,7 +103,7 @@ class EmrClient:
         :type str
 
         :return: Response object
-        :rtype dict
+        :rtype: dict
         """
         statements_url = f"session_url/statements"
         with open(statement_path, "r") as f:
@@ -115,17 +117,15 @@ class EmrClient:
         logging.info(response.json())
         return response
 
-    def track_statement_progress(self, master_dns, response_headers):
+    def track_statement_progress(self, master_dns: str, response_headers: Dict[str, str]) -> bool:
         """
         Function to help track the progress of the scala code submitted to Apache Livy
 
         :param master_dns: Public URL for the EMR cluster
-        :type str
         :param response_headers: Response headers for the create spark session request
-        :type dict
 
         :return: Boolean specifying status of the statement.
-        :rtype bool
+        :rtype: bool
         """
         statement_status = ""
         host = f"http://{master_dns}:8998"
@@ -160,12 +160,12 @@ class EmrClient:
         logging.info("Final Statement Status: " + final_statement_status)
         return True
 
-    def get_public_ip(self):
+    def get_public_ip(self) -> str:
         """
         Function to fetch the EMR public address
 
         :return: Public IP address for EMR cluster
-        :rtype str
+        :rtype: str
         """
         instances = emr.list_instances(
             ClusterId=self.cluster_key, InstanceGroupTypes=["MASTER"]

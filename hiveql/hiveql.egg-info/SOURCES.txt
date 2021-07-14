@@ -9,6 +9,5 @@ hiveql.egg-info/top_level.txt
 hiveql/moonraker/__init__.py
 hiveql/myscripbox/__init__.py
 hiveql/myscripbox/interim/__init__.py
-hiveql/myscripbox/interim/offering_crorepati.py
-hiveql/myscripbox/interim/offering_source.py
+hiveql/myscripbox/interim/sample.py
 hiveql/myscripbox/processed/__init__.py

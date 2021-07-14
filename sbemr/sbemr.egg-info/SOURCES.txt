@@ -1,7 +1,0 @@
-setup.py
-sbemr/__init__.py
-sbemr/emr_client.py
-sbemr.egg-info/PKG-INFO
-sbemr.egg-info/SOURCES.txt
-sbemr.egg-info/dependency_links.txt
-sbemr.egg-info/top_level.txt

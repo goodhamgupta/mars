@@ -1,0 +1,34 @@
+Mars Documentation
+=========================================
+
+Mars is a tool based on Apache Airflow to interact with multiple data sources using Hive and HDFS. The main aim 
+is to provide a framework to import data into a single data lake, perform necessary computations and store the
+result in a data store of your choice!
+
+Mars was initially built _explicity_ to work with the schema present in Snowplow Analytics, but it's extensibility
+ensures that adding new modules is a breeze!
+
+Features
+========
+
+- **Diverse Sources**: Interact and import data from a variety of sources such as MySQL, Postgres, S3 using tools such as
+  Sqoop and Hive.
+- **SQL**: The core of mars is based on supporting queries using HiveQL, which is very similar to SQL.
+- **Dynamic DAGs**: DAGs defined with paramters are automatically split into smaller and more modular tasks, allowing you to work with
+  large amounts of data.
+- **Monitoring**: Monitor all your tasks with notifications on your favorite apps such as Slack, PagerDuty, etc.
+
+
+Indices and tables
+==================
+
+.. autosummary::
+   :toctree: _autosummary
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
